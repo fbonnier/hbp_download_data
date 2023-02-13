@@ -17,7 +17,34 @@ def download_data (url, path):
         print (e)
         return 1
 
+
+def untar_data (path):
+    try:
+        json_content = []
+        with tarfile.TarFile(path, 'r') as datazip:
+            datazip.extractall(path)
+            for iitem in datazip.namelist():
+                json_content.append ({"url": "", "path": str(iitem), "hash": ""})
+        return json_content
+        
+    except Exception as e:
+        print (e)
+        return 1
+
 def unzip_data (path):
+    try:
+        json_content = []
+        with zipfile.ZipFile(path, 'r') as datazip:
+            datazip.extractall(path)
+            for iitem in datazip.namelist():
+                json_content.append ({"url": "", "path": str(iitem), "hash": ""})
+        return json_content
+        
+    except Exception as e:
+        print (e)
+        return 1
+
+def untar_data (path):
     try:
         os.system ("arc -overwrite unarchive " + str(path) )
         return 0
@@ -75,9 +102,14 @@ if __name__ == "__main__":
     # Download code
     if code["url"] and code["path"]:
         download_data(code["url"], code["path"])
+        
     # Unzip code
-    if tarfile.is_tarfile(code["path"]) or zipfile.is_zipfile(code["path"]):
-        unzip_data(code["path"])
-
+    # Update and write JSON report including files in archive as outputs potentials
+    if zipfile.is_zipfile(code["path"]):
+        json_data["Metadata"]["run"]["outputs"].append(unzip_data(code["path"]))
+    elif tarfile.is_tarfile(code["path"]):
+        json_data["Metadata"]["run"]["outputs"].append(untar_data(code["path"]))
+    with open("./report.json", "w") as f:
+            json.dump(json_data, f, indent=4) 
     # Exit Done ?
     sys.exit()
