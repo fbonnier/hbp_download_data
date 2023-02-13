@@ -1,0 +1,21 @@
+#!/bin/bash
+
+JSON_PATH=""
+
+NARGS=$(($#-1))
+
+for (( iarg=1; iarg<=NARGS; iarg++)); do
+    jarg=$((iarg+1))
+
+    if [ "${!iarg}" == "--json" ]
+        then
+            JSON_PATH=${!jarg}
+    fi
+done
+
+if [ "$JSON_PATH" == "" ]; then
+    echo "Parameter is missing:"
+    echo "--json: path of the required metadata JSON file"
+else
+    python3 $( dirname -- "$0"; )/main.py --json $JSON_PATH
+fi
