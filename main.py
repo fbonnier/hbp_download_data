@@ -14,6 +14,10 @@ def download_data (url, path):
         with urllib.request.urlopen(url) as response, open(filename, 'wb') as out_file:
             data = response.read() # a `bytes` object
             out_file.write(data)
+        print ("Current dir :: ")
+        print (os.listdir())
+        print ("Path dir :: ")
+        print (os.listdir(path))
         return 0
     except Exception as e:
         print (e)
@@ -106,7 +110,7 @@ if __name__ == "__main__":
     elif tarfile.is_tarfile(filename):
         json_data["Metadata"]["run"]["outputs"].append(untar_data(filename))
     else:
-        print ("Error: code URL is not a File")
+        print ("Error: code path is not a zip or tar File")
 
     with open("./report.json", "w") as f:
         json.dump(json_data, f, indent=4) 
