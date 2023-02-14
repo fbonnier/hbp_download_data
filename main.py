@@ -130,7 +130,9 @@ if __name__ == "__main__":
         try:
             shutil.unpack_archive(filename, str(code["path"]))
         except Exception as e:
-            print (e)
+            print ("Shutil failed: " + str(e))
+            print ("Trying Archiver")
+            os.system("arc -overwrite unarchive " + str(filename) + " " + str(code["path"]))
 
     with open("./report.json", "w") as f:
         json.dump(json_data, f, indent=4) 
