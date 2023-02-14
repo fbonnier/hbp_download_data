@@ -20,6 +20,7 @@ def download_data (url, path):
         print (os.listdir(path))
         return 0
     except Exception as e:
+        print ("download_data")
         print (e)
         return 1
 
@@ -33,6 +34,7 @@ def check_code_locations (list_of_codes):
                 data = response.read() # a `bytes` object
                 out_file.write(data)
         except Exception as e:
+            print ("check_code_location")
             print (e)
         
     print ("Path dir :: ")
@@ -58,6 +60,7 @@ def check_code_locations (list_of_codes):
                 code_to_return["path"] = icode["path"] + "/" + ifilename
                 code_to_return["url"] = icode["url"]
             except Exception as e:
+                print ("check_code_location_2")
                 print(e)
     return code_to_return
 
@@ -71,6 +74,7 @@ def untar_data (path):
         return json_content
         
     except Exception as e:
+        print ("untar_data")
         print (e)
         return 1
 
@@ -84,6 +88,7 @@ def unrar_data (path):
         return json_content
         
     except Exception as e:
+        print ("unrar_data")
         print (e)
         return 1
 
@@ -97,6 +102,7 @@ def unzip_data (path):
         return json_content
         
     except Exception as e:
+        print ("unzip_data")
         print (e)
         return 1
 
