@@ -27,7 +27,7 @@ def download_data (url, path):
 def check_code_locations (list_of_codes):
     list_of_filenames = []
     for icode in list_of_codes:
-        ifilename = str(icode["path"]) + "/" + str(str(icode["url"]).split("/")[-1])
+        ifilename = str(icode["path"]) + "/" + str(icode["url"]).split("/")[-1]
         list_of_filenames.append(ifilename)
         try:
             with urllib.request.urlopen(icode["url"]) as response, open(ifilename, 'wb') as out_file:
@@ -41,7 +41,7 @@ def check_code_locations (list_of_codes):
     print (os.listdir())
 
     code_to_return = {"url": None, "path": None}
-    assert(len(list_of_codes) == len(list_of_filenames, "Code locations and filenames aren't the same size"))
+    assert(len(list_of_codes) == len(list_of_filenames), "Code locations and filenames aren't the same size")
     for ifilename in list_of_filenames, icode in list_of_codes:
         if zipfile.is_zipfile(ifilename):
             code_to_return["path"] = ifilename
