@@ -7,6 +7,7 @@ import urllib.request
 import zipfile
 import tarfile
 import rarfile
+import shutil
 
 def download_data (url, path):
 
@@ -124,7 +125,12 @@ if __name__ == "__main__":
     elif rarfile.is_rarfile(filename):
         json_data["Metadata"]["run"]["outputs"].append(unrar_data(filename))
     else:
-        print ("Error: code path is not a zip or tar File")
+        print ("Error: code path is not a zip, rar or tar File")
+        print ("Trying shutil lib")
+        try:
+            shutil.unpack_archive(filename, str(code["path"]))
+        except Exception as e:
+            print (e)
 
     with open("./report.json", "w") as f:
         json.dump(json_data, f, indent=4) 
