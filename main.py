@@ -23,6 +23,43 @@ def download_data (url, path):
         print (e)
         return 1
 
+def check_code_locations (list_of_codes):
+    list_of_filenames = []
+    for icode in list_of_codes:
+        ifilename = str(icode["path"]) + "/" + str(str(icode["url"]).split("/")[-1])
+        list_of_filenames.append(ifilename)
+        try:
+            with urllib.request.urlopen(icode["url"]) as response, open(ifilename, 'wb') as out_file:
+                data = response.read() # a `bytes` object
+                out_file.write(data)
+        except Exception as e:
+            print (e)
+        
+    print ("Path dir :: ")
+    print (os.listdir())
+
+    code_to_return = {"url": None, "path": None}
+    assert(len(list_of_codes) == len(list_of_filenames, "Code locations and filenames aren't the same size"))
+    for ifilename in list_of_filenames, icode in list_of_codes:
+        if zipfile.is_zipfile(ifilename):
+            code_to_return["path"] = ifilename
+            code_to_return["url"] = icode["url"]
+        elif tarfile.is_tarfile(filename):
+            code_to_return["path"] = ifilename
+            code_to_return["url"] = icode["url"]
+        elif rarfile.is_rarfile(filename):
+            code_to_return["path"] = ifilename
+            code_to_return["url"] = icode["url"]
+        else:
+            print ("Error: code path is not a zip, rar or tar File")
+            print ("Trying shutil lib")
+            try:
+                shutil.unpack_archive(ifilename, str(icode["path"]))
+                code_to_return["path"] = icode["path"] + "/" + ifilename
+                code_to_return["url"] = icode["url"]
+            except Exception as e:
+                print(e)
+    return code_to_return
 
 def untar_data (path):
     try:
@@ -70,9 +107,6 @@ if __name__ == "__main__":
     parser.add_argument("--json", type=argparse.FileType('r'), metavar="JSON Metadata file", nargs=1, dest="json", default="",\
     help="JSON File that contains Metadata of the HBP model to run")
 
-    # parser.add_argument("--kg", type=int, metavar="KG Version", nargs=1, dest="kg", default=int(os.environ.get("KG_VERSION", 2)),\
-    # help="Version number of Knowledge Graph to use")
-
     args = parser.parse_args()
 
     # Load JSON data
@@ -109,8 +143,9 @@ if __name__ == "__main__":
             download_data(ioutput["url"], ioutput["path"])
 
     # Load code
-    code = { "url": json_data["Metadata"]["run"]["url"], "path": json_data["Metadata"]["run"]["path"]}
+    code = check_code_locations (json_data["Metadata"]["run"]["code"])
     # Download code
+    assert(code["url"] != None)
     if code["url"] and code["path"]:
         download_data(code["url"], code["path"])
         
