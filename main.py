@@ -9,7 +9,7 @@ import tarfile
 
 def download_data (url, path):
 
-    filename =  str(path) + str(str(url).split("/").last)
+    filename =  str(path) + str(str(url).split("/")[-1])
     try:
         with urllib.request.urlopen(url) as response, open(path, 'wb') as out_file:
             data = response.read() # a `bytes` object
@@ -99,7 +99,7 @@ if __name__ == "__main__":
         
     # Unzip code
     # Update and write JSON report including files in archive as outputs potentials
-    filename =  str(code["path"]) + str(str(code["url"]).split("/").last)
+    filename =  str(code["path"]) + str(str(code["url"]).split("/")[-1])
     if zipfile.is_zipfile(filename):
         json_data["Metadata"]["run"]["outputs"].append(unzip_data(filename))
     elif tarfile.is_tarfile(filename):
