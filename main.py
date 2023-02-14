@@ -134,7 +134,7 @@ if __name__ == "__main__":
             print ("Trying Archiver")
             os.system("arc -overwrite unarchive " + str(filename) + " " + str(code["path"]))
             # Check if the file has been correctly extracted
-            os.listdir (str(code["path"]))
+            print(os.listdir (str(code["path"])))
 
     with open("./report.json", "w") as f:
         json.dump(json_data, f, indent=4) 
