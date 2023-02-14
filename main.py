@@ -99,14 +99,16 @@ if __name__ == "__main__":
         
     # Unzip code
     # Update and write JSON report including files in archive as outputs potentials
-    filename =  str(code["path"]) + str(str(code["url"]).split("/")[-1])
+    filename =  str(code["path"]) + "/" + str(str(code["url"]).split("/")[-1])
+    print ("Filename :: " + str(filename))
     if zipfile.is_zipfile(filename):
         json_data["Metadata"]["run"]["outputs"].append(unzip_data(filename))
     elif tarfile.is_tarfile(filename):
         json_data["Metadata"]["run"]["outputs"].append(untar_data(filename))
     else:
         print ("Error: code URL is not a File")
+
     with open("./report.json", "w") as f:
-            json.dump(json_data, f, indent=4) 
+        json.dump(json_data, f, indent=4) 
     # Exit Done ?
     sys.exit()
