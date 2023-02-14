@@ -44,6 +44,7 @@ def check_code_locations (list_of_codes):
     
     for ifilename in list_of_filenames, icode in list_of_codes:
         print (ifilename)
+        print (list_of_filenames)
         if zipfile.is_zipfile(ifilename):
             code_to_return["path"] = ifilename
             code_to_return["url"] = icode["url"]
