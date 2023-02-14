@@ -6,6 +6,7 @@ import warnings
 import urllib.request
 import zipfile
 import tarfile
+import rarfile
 
 def download_data (url, path):
 
@@ -14,8 +15,6 @@ def download_data (url, path):
         with urllib.request.urlopen(url) as response, open(filename, 'wb') as out_file:
             data = response.read() # a `bytes` object
             out_file.write(data)
-        print ("Current dir :: ")
-        print (os.listdir())
         print ("Path dir :: ")
         print (os.listdir(path))
         return 0
@@ -28,6 +27,19 @@ def untar_data (path):
     try:
         json_content = []
         with tarfile.TarFile(path, 'r') as datazip:
+            datazip.extractall(path)
+            for iitem in datazip.namelist():
+                json_content.append ({"url": "", "path": str(iitem), "hash": ""})
+        return json_content
+        
+    except Exception as e:
+        print (e)
+        return 1
+
+def unrar_data (path):
+    try:
+        json_content = []
+        with rarfile.RarFile(path, 'r') as datazip:
             datazip.extractall(path)
             for iitem in datazip.namelist():
                 json_content.append ({"url": "", "path": str(iitem), "hash": ""})
@@ -109,6 +121,8 @@ if __name__ == "__main__":
         json_data["Metadata"]["run"]["outputs"].append(unzip_data(filename))
     elif tarfile.is_tarfile(filename):
         json_data["Metadata"]["run"]["outputs"].append(untar_data(filename))
+    elif rarfile.is_rarfile(filename):
+        json_data["Metadata"]["run"]["outputs"].append(unrar_data(filename))
     else:
         print ("Error: code path is not a zip or tar File")
 
