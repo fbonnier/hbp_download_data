@@ -8,6 +8,8 @@ import zipfile
 import tarfile
 
 def download_data (url, path):
+
+    filename =  str(path) + str(str(url).split("/").last)
     try:
         with urllib.request.urlopen(url) as response, open(path, 'wb') as out_file:
             data = response.read() # a `bytes` object
@@ -40,14 +42,6 @@ def unzip_data (path):
                 json_content.append ({"url": "", "path": str(iitem), "hash": ""})
         return json_content
         
-    except Exception as e:
-        print (e)
-        return 1
-
-def untar_data (path):
-    try:
-        os.system ("arc -overwrite unarchive " + str(path) )
-        return 0
     except Exception as e:
         print (e)
         return 1
@@ -105,10 +99,11 @@ if __name__ == "__main__":
         
     # Unzip code
     # Update and write JSON report including files in archive as outputs potentials
-    if zipfile.is_zipfile(code["path"]):
-        json_data["Metadata"]["run"]["outputs"].append(unzip_data(code["path"]))
-    elif tarfile.is_tarfile(code["path"]):
-        json_data["Metadata"]["run"]["outputs"].append(untar_data(code["path"]))
+    filename =  str(code["path"]) + str(str(code["url"]).split("/").last)
+    if zipfile.is_zipfile(filename):
+        json_data["Metadata"]["run"]["outputs"].append(unzip_data(filename))
+    elif tarfile.is_tarfile(filename):
+        json_data["Metadata"]["run"]["outputs"].append(untar_data(filename))
     with open("./report.json", "w") as f:
             json.dump(json_data, f, indent=4) 
     # Exit Done ?
