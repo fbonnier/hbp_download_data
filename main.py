@@ -9,9 +9,9 @@ import tarfile
 
 def download_data (url, path):
 
-    filename =  str(path) + str(str(url).split("/")[-1])
+    filename =  str(path) + "/" + str(str(url).split("/")[-1])
     try:
-        with urllib.request.urlopen(url) as response, open(path, 'wb') as out_file:
+        with urllib.request.urlopen(url) as response, open(filename, 'wb') as out_file:
             data = response.read() # a `bytes` object
             out_file.write(data)
         return 0
@@ -104,6 +104,8 @@ if __name__ == "__main__":
         json_data["Metadata"]["run"]["outputs"].append(unzip_data(filename))
     elif tarfile.is_tarfile(filename):
         json_data["Metadata"]["run"]["outputs"].append(untar_data(filename))
+    else:
+        print ("Error: code URL is not a File")
     with open("./report.json", "w") as f:
             json.dump(json_data, f, indent=4) 
     # Exit Done ?
