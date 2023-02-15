@@ -41,29 +41,28 @@ def check_code_locations (list_of_codes):
     print (os.listdir())
 
     code_to_return = {"url": None, "path": None}
-    
-    for ifilename in list_of_filenames, icode in list_of_codes:
-        print (ifilename)
-        print (list_of_filenames)
+    cpt = 0
+    for ifilename in list_of_filenames:
         if zipfile.is_zipfile(ifilename):
             code_to_return["path"] = ifilename
-            code_to_return["url"] = icode["url"]
+            code_to_return["url"] = list_of_codes[cpt]["url"]
         elif tarfile.is_tarfile(ifilename):
             code_to_return["path"] = ifilename
-            code_to_return["url"] = icode["url"]
+            code_to_return["url"] = list_of_codes[cpt]["url"]
         elif rarfile.is_rarfile(ifilename):
             code_to_return["path"] = ifilename
-            code_to_return["url"] = icode["url"]
+            code_to_return["url"] = list_of_codes[cpt]["url"]
         else:
             print ("Error: code path is not a zip, rar or tar File")
             print ("Trying shutil lib")
             try:
-                shutil.unpack_archive(ifilename, str(icode["path"]))
-                code_to_return["path"] = icode["path"] + "/" + ifilename
-                code_to_return["url"] = icode["url"]
+                shutil.unpack_archive(ifilename, str(list_of_codes[cpt]["path"]))
+                code_to_return["path"] = list_of_codes[cpt]["path"] + "/" + ifilename
+                code_to_return["url"] = list_of_codes[cpt]["url"]
             except Exception as e:
                 print ("check_code_location_2")
                 print(e)
+        cpt += 1
     return code_to_return
 
 def untar_data (path):
