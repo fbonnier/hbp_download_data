@@ -9,15 +9,12 @@ import tarfile
 import rarfile
 import shutil
 
-def download_data (url, path):
+def download_data (url, filepath):
 
-    filename =  str(path) + "/" + str(str(url).split("/")[-1])
     try:
-        with urllib.request.urlopen(url) as response, open(filename, 'wb') as out_file:
+        with urllib.request.urlopen(url) as response, open(filepath, 'wb') as out_file:
             data = response.read() # a `bytes` object
             out_file.write(data)
-        print ("Path dir :: ")
-        print (os.listdir(path))
         return 0
     except Exception as e:
         print ("download_data")
@@ -129,36 +126,42 @@ if __name__ == "__main__":
     # Load workflow
     workflow_run_file = json_data["Metadata"]["workflow"]["run"]
     workflow_data_file = json_data["Metadata"]["workflow"]["data"]
-    # Download workflow
-    if workflow_run_file["url"] and workflow_run_file["path"]:
-        download_data(workflow_run_file["url"], workflow_run_file["path"])
-    if workflow_data_file["url"] and workflow_data_file["path"]:
-        download_data(workflow_data_file["url"], workflow_data_file["path"])
+    # Download workflow runfile
+    filename =  str(workflow_run_file["path"]) + "/" + str(str(workflow_run_file["url"]).split("/")[-1])
+    if workflow_run_file["url"] and filename:
+        download_data(workflow_run_file["url"], filename)
+    # Download workflow datafile
+    filename =  str(workflow_data_file["path"]) + "/" + str(str(workflow_data_file["url"]).split("/")[-1])
+    if workflow_data_file["url"] and filename:
+        download_data(workflow_data_file["url"], filename)
     
     # Load inputs
     inputs = json_data["Metadata"]["run"]["inputs"]
     # Download inputs
     for iinput in inputs:
-        if iinput["url"] and iinput["path"]:
-            download_data(iinput["url"], iinput["path"])
+        filename =  str(iinput["path"]) + "/" + str(str(iinput["url"]).split("/")[-1])
+        if iinput["url"] and filename:
+            download_data(iinput["url"], filename)
 
     # Load outputs
     outputs = json_data["Metadata"]["run"]["outputs"]
     # Download outputs
     for ioutput in outputs:
-        if ioutput["url"] and ioutput["path"]:
-            download_data(ioutput["url"], ioutput["path"])
+        filename =  str(ioutput["path"]) + "/" + str(str(ioutput["url"]).split("/")[-1])
+        if ioutput["url"] and filename:
+            download_data(ioutput["url"], filename)
 
     # Load code
     code = check_code_locations (json_data["Metadata"]["run"]["code"])
+    filename =  str(code["path"]) + "/" + str(str(code["url"]).split("/")[-1])
     # Download code
     assert(code["url"] != None)
-    if code["url"] and code["path"]:
-        download_data(code["url"], code["path"])
+    if code["url"] and filename:
+        download_data(code["url"], filename)
         
     # Unzip code
     # Update and write JSON report including files in archive as outputs potentials
-    filename =  str(code["path"]) + "/" + str(str(code["url"]).split("/")[-1])
+    
     print ("Filename :: " + str(filename))
     if zipfile.is_zipfile(filename):
         json_data["Metadata"]["run"]["outputs"].append(unzip_data(filename))
