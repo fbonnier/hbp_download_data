@@ -34,8 +34,6 @@ def check_code_locations (list_of_codes):
             print ("check_code_location")
             print (e)
         
-    print ("Path dir :: ")
-    print (os.listdir())
 
     code_to_return = {"url": None, "path": None}
     cpt = 0
@@ -162,7 +160,6 @@ if __name__ == "__main__":
     # Unzip code
     # Update and write JSON report including files in archive as outputs potentials
     
-    print ("Filename :: " + str(filename))
     if zipfile.is_zipfile(filename):
         json_data["Metadata"]["run"]["outputs"].append(unzip_data(filename))
     elif tarfile.is_tarfile(filename):
