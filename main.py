@@ -159,7 +159,7 @@ if __name__ == "__main__":
         
     # Unzip code
     # Update and write JSON report including files in archive as outputs potentials
-    
+    print (filename)
     if zipfile.is_zipfile(filename):
         json_data["Metadata"]["run"]["outputs"].append(unzip_data(filename))
     elif tarfile.is_tarfile(filename):
