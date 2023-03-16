@@ -10,7 +10,7 @@ import rarfile
 import shutil
 
 def download_data (url, filepath):
-
+    
     try:
         with urllib.request.urlopen(url) as response, open(filepath, 'wb') as out_file:
             data = response.read() # a `bytes` object
@@ -18,87 +18,6 @@ def download_data (url, filepath):
         return 0
     except Exception as e:
         print ("download_data")
-        print (e)
-        return 1
-
-def check_code_locations (list_of_codes):
-    list_of_filenames = []
-    for icode in list_of_codes:
-        ifilename = str(icode["path"]) + "/" + str(str(icode["url"]).split("/")[-1])
-        list_of_filenames.append(ifilename)
-        try:
-            with urllib.request.urlopen(icode["url"]) as response, open(ifilename, 'wb') as out_file:
-                data = response.read() # a `bytes` object
-                out_file.write(data)
-        except Exception as e:
-            print ("check_code_location")
-            print (e)
-        
-
-    code_to_return = {"url": None, "path": None}
-    cpt = 0
-    for ifilename in list_of_filenames:
-        if zipfile.is_zipfile(ifilename):
-            code_to_return["path"] = ifilename
-            code_to_return["url"] = list_of_codes[cpt]["url"]
-        elif tarfile.is_tarfile(ifilename):
-            code_to_return["path"] = ifilename
-            code_to_return["url"] = list_of_codes[cpt]["url"]
-        elif rarfile.is_rarfile(ifilename):
-            code_to_return["path"] = ifilename
-            code_to_return["url"] = list_of_codes[cpt]["url"]
-        else:
-            print ("Error: code path is not a zip, rar or tar File")
-            print ("Trying shutil lib")
-            try:
-                shutil.unpack_archive(ifilename, str(list_of_codes[cpt]["path"]))
-                code_to_return["path"] = list_of_codes[cpt]["path"] + "/" + ifilename
-                code_to_return["url"] = list_of_codes[cpt]["url"]
-            except Exception as e:
-                print ("check_code_location_2")
-                print(e)
-        cpt += 1
-    return code_to_return
-
-def untar_data (path):
-    try:
-        json_content = []
-        with tarfile.TarFile(path, 'r') as datazip:
-            datazip.extractall(path)
-            for iitem in datazip.namelist():
-                json_content.append ({"url": "", "path": str(iitem), "hash": ""})
-        return json_content
-        
-    except Exception as e:
-        print ("untar_data")
-        print (e)
-        return 1
-
-def unrar_data (path):
-    try:
-        json_content = []
-        with rarfile.RarFile(path, 'r') as datazip:
-            datazip.extractall(path)
-            for iitem in datazip.namelist():
-                json_content.append ({"url": "", "path": str(iitem), "hash": ""})
-        return json_content
-        
-    except Exception as e:
-        print ("unrar_data")
-        print (e)
-        return 1
-
-def unzip_data (path):
-    try:
-        json_content = []
-        with zipfile.ZipFile(path, 'r') as datazip:
-            datazip.extractall(path)
-            for iitem in datazip.namelist():
-                json_content.append ({"url": "", "path": str(iitem), "hash": ""})
-        return json_content
-        
-    except Exception as e:
-        print ("unzip_data")
         print (e)
         return 1
 
@@ -150,33 +69,46 @@ if __name__ == "__main__":
             download_data(ioutput["url"], filename)
 
     # Load code
-    code = check_code_locations (json_data["Metadata"]["run"]["code"])
-    filename =  str(code["path"]) + "/" + str(str(code["url"]).split("/")[-1])
     # Download code
-    assert(code["url"] != None)
-    if code["url"] and filename:
-        download_data(code["url"], filename)
+    for icode in json_data["Metadata"]["run"]["code"]:
+        assert(icode["url"] != None)
+        if icode["url"] and icode["filepath"]:
+            download_data(url=icode["url"], filepath=icode["filepath"])
         
-    # Unzip code
-    # Update and write JSON report including files in archive as outputs potentials
-    print (filename)
-    if zipfile.is_zipfile(filename):
-        json_data["Metadata"]["run"]["outputs"].append(unzip_data(filename))
-    elif tarfile.is_tarfile(filename):
-        json_data["Metadata"]["run"]["outputs"].append(untar_data(filename))
-    elif rarfile.is_rarfile(filename):
-        json_data["Metadata"]["run"]["outputs"].append(unrar_data(filename))
-    else:
-        print ("Error: code path is not a zip, rar or tar File")
-        print ("Trying shutil lib")
+        # Unzip code
+        if zipfile.is_zipfile(icode["filepath"]):
+            # Rename file to add extension
+            os.rename(icode["filepath"], icode["filepath"] + ".zip")
+            icode["filepath"] = icode["filepath"] + ".zip"
+        elif tarfile.is_tarfile(icode["filepath"]):
+            # Rename file to add extension
+            os.rename(icode["filepath"], icode["filepath"] + ".tar")
+            icode["filepath"] = icode["filepath"] + ".tar"
+        elif rarfile.is_rarfile(icode["filepath"]):
+            # Rename file to add extension
+            os.rename(icode["filepath"], icode["filepath"] + ".rar")
+            icode["filepath"] = icode["filepath"] + ".rar"
+
         try:
-            shutil.unpack_archive(filename, str(code["path"]))
+            shutil.unpack_archive(icode["filepath"], icode["path"])
         except Exception as e:
             print ("Shutil failed: " + str(e))
             print ("Trying Archiver")
-            os.system("arc -overwrite unarchive " + str(filename) + " " + str(code["path"]))
+            os.system("arc -overwrite unarchive " + icode["filepath"] + " " + icode["path"])
             # Check if the file has been correctly extracted
-            print(os.listdir (str(code["path"])))
+            print(os.listdir (str(icode["path"])))
+
+        # Add all files of code as potential outputs/results
+        try:
+            for current_dir, subdirs, files in os.walk( icode["path"] ):
+                for filename in files:
+                    relative_path = os.path.join( current_dir, filename )
+                    absolute_path = os.path.abspath( relative_path )
+                    json_data["Metadata"]["run"]["outputs"].append({"url": None,  "path": str(absolute_path), "hash": ""})
+                    print (absolute_path)
+        except Exception as e:
+            print (e)
+
 
     with open("./report.json", "w") as f:
         json.dump(json_data, f, indent=4) 
