@@ -8,18 +8,17 @@ import zipfile
 import tarfile
 import rarfile
 import shutil
+import re
 
-def download_data (url, filepath):
+def download_data (url: str, filepath: str):
     
     try:
         with urllib.request.urlopen(url) as response, open(filepath, 'wb') as out_file:
             data = response.read() # a `bytes` object
             out_file.write(data)
-        return 0
     except Exception as e:
         print ("download_data")
         print (e)
-        return 1
 
 if __name__ == "__main__":
 
@@ -44,29 +43,25 @@ if __name__ == "__main__":
     workflow_run_file = json_data["Metadata"]["workflow"]["run"]
     workflow_data_file = json_data["Metadata"]["workflow"]["data"]
     # Download workflow runfile
-    filename =  str(workflow_run_file["path"]) + "/" + str(str(workflow_run_file["url"]).split("/")[-1])
-    if workflow_run_file["url"] and filename:
-        download_data(workflow_run_file["url"], filename)
+    if workflow_run_file["url"] and workflow_run_file["path"]:
+        download_data(workflow_run_file["url"], workflow_run_file["path"])
     # Download workflow datafile
-    filename =  str(workflow_data_file["path"]) + "/" + str(str(workflow_data_file["url"]).split("/")[-1])
-    if workflow_data_file["url"] and filename:
-        download_data(workflow_data_file["url"], filename)
+    if workflow_data_file["url"] and workflow_data_file["path"]:
+        download_data(workflow_data_file["url"], workflow_data_file["path"])
     
     # Load inputs
     inputs = json_data["Metadata"]["run"]["inputs"]
     # Download inputs
     for iinput in inputs:
-        filename =  str(iinput["path"]) + "/" + str(str(iinput["url"]).split("/")[-1])
-        if iinput["url"] and filename:
-            download_data(iinput["url"], filename)
+        if iinput["url"] and iinput["path"]:
+            download_data(iinput["url"], iinput["path"])
 
     # Load outputs
     outputs = json_data["Metadata"]["run"]["outputs"]
     # Download outputs
     for ioutput in outputs:
-        filename =  str(ioutput["path"]) + "/" + str(str(ioutput["url"]).split("/")[-1])
-        if ioutput["url"] and filename:
-            download_data(ioutput["url"], filename)
+        if ioutput["url"] and ioutput["path"]:
+            download_data(ioutput["url"], ioutput["path"])
 
     # Load code
     # Download code
@@ -74,21 +69,6 @@ if __name__ == "__main__":
         assert(icode["url"] != None)
         if icode["url"] and icode["filepath"]:
             download_data(url=icode["url"], filepath=icode["filepath"])
-        
-        # Unzip code
-        if zipfile.is_zipfile(icode["filepath"]):
-            # Rename file to add extension
-            os.rename(icode["filepath"], icode["filepath"] + ".zip")
-            icode["filepath"] = icode["filepath"] + ".zip"
-        elif tarfile.is_tarfile(icode["filepath"]):
-            # Rename file to add extension
-            os.rename(icode["filepath"], icode["filepath"] + ".tar")
-            icode["filepath"] = icode["filepath"] + ".tar"
-        elif rarfile.is_rarfile(icode["filepath"]):
-            # Rename file to add extension
-            os.rename(icode["filepath"], icode["filepath"] + ".rar")
-            icode["filepath"] = icode["filepath"] + ".rar"
-
         try:
             shutil.unpack_archive(icode["filepath"], icode["path"])
         except Exception as e:
