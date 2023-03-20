@@ -67,16 +67,24 @@ if __name__ == "__main__":
     # Download code
     for icode in json_data["Metadata"]["run"]["code"]:
         assert(icode["url"] != None)
+
         if icode["url"] and icode["filepath"]:
             download_data(url=icode["url"], filepath=icode["filepath"])
         try:
+            # Unpack code to run
             shutil.unpack_archive(icode["filepath"], icode["path"])
         except Exception as e:
             print ("Shutil failed: " + str(e))
             print ("Trying Archiver")
             os.system("arc -overwrite unarchive " + icode["filepath"] + " " + icode["path"])
-            # Check if the file has been correctly extracted
-            print(os.listdir (str(icode["path"])))
+
+        # try:
+        #     # Unpack control code as outputs
+        #     shutil.unpack_archive(icode["filepath"], json_data["Metadata"]["workdir"] + "/outputs/" + icode["filepath"].)
+        # except Exception as e:
+        #     print ("Shutil failed: " + str(e))
+        #     print ("Trying Archiver")
+        #     os.system("arc -overwrite unarchive " + icode["filepath"] + " " + json_data["Metadata"]["workdir"] + "/outputs/" + icode["filepath"])
 
         # Add all files of code as potential outputs/results
         try:
