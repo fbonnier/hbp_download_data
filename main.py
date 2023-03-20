@@ -78,22 +78,24 @@ if __name__ == "__main__":
             print ("Trying Archiver")
             os.system("arc -overwrite unarchive " + icode["filepath"] + " " + icode["path"])
 
-        # try:
-        #     # Unpack control code as outputs
-        #     shutil.unpack_archive(icode["filepath"], json_data["Metadata"]["workdir"] + "/outputs/" + icode["filepath"].)
-        # except Exception as e:
-        #     print ("Shutil failed: " + str(e))
-        #     print ("Trying Archiver")
-        #     os.system("arc -overwrite unarchive " + icode["filepath"] + " " + json_data["Metadata"]["workdir"] + "/outputs/" + icode["filepath"])
+        # Control code as output
+        control_foler = json_data["Metadata"]["workdir"] + "/outputs/" + icode["filepath"].split("/")[-1]
+        try:
+            # Unpack control code as outputs
+            shutil.unpack_archive(icode["filepath"], control_foler)
+        except Exception as e:
+            print ("Shutil failed for control group: " + str(e))
+            print ("Trying Archiver")
+            os.system("arc -overwrite unarchive " + icode["filepath"] + " " + control_foler)
 
         # Add all files of code as potential outputs/results
         try:
-            for current_dir, subdirs, files in os.walk( icode["path"] ):
+            for current_dir, subdirs, files in os.walk( control_foler ):
                 for filename in files:
                     relative_path = os.path.join( current_dir, filename )
                     absolute_path = os.path.abspath( relative_path )
-                    json_data["Metadata"]["run"]["outputs"].append({"url": None,  "path": str(absolute_path), "hash": ""})
-                    print (absolute_path)
+                    json_data["Metadata"]["run"]["outputs"].append({"url": None,  "path": str(absolute_path), "hash": None})
+                    # print (absolute_path)
         except Exception as e:
             print (e)
 
