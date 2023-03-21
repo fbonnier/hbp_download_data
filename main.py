@@ -79,7 +79,7 @@ if __name__ == "__main__":
             os.system("arc -overwrite unarchive " + icode["filepath"] + " " + icode["path"])
 
         # Control code as output
-        control_foler = json_data["Metadata"]["workdir"] + "/outputs/" + icode["filepath"].split("/")[-1]
+        control_foler = json_data["Metadata"]["workdir"] + "/outputs/" + icode["filepath"].split("/")[-1].split(".")[0]
         try:
             # Unpack control code as outputs
             shutil.unpack_archive(icode["filepath"], control_foler)
