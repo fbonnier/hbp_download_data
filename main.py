@@ -100,7 +100,7 @@ if __name__ == "__main__":
             print (e)
 
 
-    with open(json_file, "w") as f:
+    with open(json_file.name, "w") as f:
         json.dump(json_data, f, indent=4) 
     # Exit Done ?
     sys.exit()
