@@ -25,7 +25,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Download and extract data from HBP metadata JSON file. Only code will be extracted")
 
     parser.add_argument("--json", type=argparse.FileType('r'), metavar="JSON Metadata file", nargs=1, dest="json", default="",\
-    help="JSON File that contains Metadata of the HBP model to run")
+    help="JSON File that contains Metadata of the HBP model to run", required=True)
 
     args = parser.parse_args()
 
@@ -100,7 +100,7 @@ if __name__ == "__main__":
             print (e)
 
 
-    with open("./report.json", "w") as f:
+    with open(json_file, "w") as f:
         json.dump(json_data, f, indent=4) 
     # Exit Done ?
     sys.exit()
