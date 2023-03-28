@@ -9,6 +9,7 @@ import tarfile
 import rarfile
 import shutil
 import re
+from nilsimsa import Nilsimsa, compare_digests
 
 def download_data (url: str, filepath: str):
     
@@ -19,6 +20,17 @@ def download_data (url: str, filepath: str):
     except Exception as e:
         print ("download_data")
         print (e)
+
+def compute_hash (filepath: str) -> str:
+    filehash = None
+    try:
+        all_info = os.path.basename(filepath) + str(os.path.getsize(filepath))
+        filehash = Nilsimsa(all_info).hexdigest()
+    except Exception as e:
+        print (e)
+
+    return filehash
+
 
 if __name__ == "__main__":
 
@@ -99,6 +111,9 @@ if __name__ == "__main__":
         except Exception as e:
             print (e)
 
+    # Compute hash of outputs
+    for ioutput in json_data["Metadata"]["run"]["outputs"]:
+        ioutput["hash"] = compute_hash(ioutput["path"])
 
     with open(json_file.name, "w") as f:
         json.dump(json_data, f, indent=4) 
