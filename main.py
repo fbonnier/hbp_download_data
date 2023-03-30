@@ -9,7 +9,7 @@ import tarfile
 import rarfile
 import shutil
 import re
-from nilsimsa import Nilsimsa, compare_digests
+from nilsimsa import Nilsimsa
 
 def download_data (url: str, filepath: str):
     
